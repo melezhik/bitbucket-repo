@@ -1,0 +1,7 @@
+{
+
+  "name": "bitbucket-repo",
+  "version" : "0.1.0",
+  "url" : "https://github.com/melezhik/bitbucket-repo",
+  "description" : "Asynchronously create bitbucket git repositories"
+}
