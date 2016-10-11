@@ -59,6 +59,12 @@ _remote repository url_:
 A plugin goes through the list of repositories and asynchronously creates remote git repository.
 An asynchronous behavior is implemented by simple Linux background process using `&`.  
 
+## http_debug
+
+If you want to see http headers come from bitbucket API, enable this parameter:
+
+    --param http_debug=1
+
 # Author
 
 Alexey Melezhik
