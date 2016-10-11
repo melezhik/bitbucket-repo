@@ -19,6 +19,6 @@ export curl_opts=""
 find $local_dir -maxdepth 1 -mindepth 1 -type d -execdir perl -MFile::Basename \
 -e 'my $p = basename(@ARGV[0]); my $user = $ENV{user}; my $password = $ENV{password}; 
 my $q = $ENV{q};
-print "( curl -s -k -H \"Content-Type: application/json\" -w \" %{url_effective} %{http_code} \" -d $q { \"is_private\" :  true  } $q",
+print "let \"i++\"; ( echo -n \$i. \" \"; curl -s -k -H \"Content-Type: application/json\" -w \" %{url_effective} %{http_code} \" -d $q { \"is_private\" :  true  } $q",
 " https://api.bitbucket.org/2.0/repositories/$ENV{team}/$p -u $user:$password; echo )    \n"' {}  \; \
 | bash && echo bitbucket-repo-done
