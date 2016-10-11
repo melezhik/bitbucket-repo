@@ -10,19 +10,28 @@ Asynchronously create bitbucket git repositories.
 
 # USAGE
 
-    sparrow plg run bitbucket-repo --param url=https://github.com/melezhik \
-    --param local_dir=/path/to/local/git/repositories/
+    sparrow plg run bitbucket-repo --param local_dir=/path/to/local/git/repositories/ \
+    --param user=alexey --param password=12345 --param team=heroes
+    
 
 
 # Parameters
 
-## url
+## team
 
-This should be a remote git repository URL _representing_ a realm of your multiple repositories.
+This should be a bitbucket team  _representing_ a realm of your multiple repositories.
 
-For example, if you use BitBucket, this could be a `team` container:
+For example:
 
-    --param url=https://bitbucket.org/my-cool-team
+    --param team=my-cool-team
+
+## user
+
+This should be a bitbucket user with privileges to create a repositories inside team.
+
+## password
+
+This should be bitbucket user's password
 
 ## local_dir
 
