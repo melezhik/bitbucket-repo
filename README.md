@@ -2,7 +2,6 @@
 
 Create ( multiple ) bitbucket git repositories.
 
-
 # INSTALL
 
     sparrow plg install bitbucket-repo
@@ -10,8 +9,11 @@ Create ( multiple ) bitbucket git repositories.
 
 # USAGE
 
-    sparrow plg run bitbucket-repo --param local_dir=/path/to/local/git/repositories/ \
-    --param user=alexey --param password=12345 --param team=heroes
+    sparrow plg run bitbucket-repo 
+    --param team=heroes \
+    --param svn_repo=http://svnrepo/repo_one/ \
+    --param user=alexey \
+    --param password=12345 \
     
 
 
@@ -19,7 +21,7 @@ Create ( multiple ) bitbucket git repositories.
 
 ## team
 
-This should be a bitbucket team  _representing_ a realm of your multiple repositories.
+This should be a bitbucket team  _representing_ a realm of multiple git repositories.
 
 For example:
 
@@ -27,36 +29,26 @@ For example:
 
 ## user
 
-This should be a bitbucket user with privileges to create a repositories inside team.
+This should be a bitbucket user with privileges to create a repositories inside the `team`.
 
 ## password
 
 This should be bitbucket user's password
 
-## local_dir
+## svn_repo
 
-This should be a local path to a directory containing a _local git repositories_
+This should be a svn repo URL.
 
-A layout should be:
+For example:
 
-    # local_dir:
-    /home/melezhik/repos/
+    --param svn_repo=http://svn_repositories/private
 
-    # foo repository:
-    /home/melezhik/repos/foo/ -- remote git url ---> $url/foo.git
+A plugin goes through the list of directories and asynchronously creates remote git repository for
+every directory.
 
-    # baz repository:
-    /home/melezhik/repos/baz/ -- remote git url ---> $url/baz.git
+A list of directories is calculated as:
 
-
-    so on ...
-
-So the convention is that the name of directory to contain source code should _match_
-_remote repository url_:
-
-    $url/$directory-name.git
-
-A plugin goes through the list of repositories and asynchronously creates remote git repository.
+    $ svn list $svn_repo 
 
 # Author
 

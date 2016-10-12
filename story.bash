@@ -1,24 +1,40 @@
-export local_dir=$(config local_dir)
+export svn_repo=$(config svn_repo)
 export team=$(config team)
 export user=$(config user)
 export password=$(config password)
-export http_debug=$(config http_debug)
 
-echo team: $team
-echo bitbucket user: $user
-echo local_dir: $local_dir
+echo svn_repo       : $svn_repo
+echo team           : $team
+echo bitbucket user : $user
 
 export q="'";
 
-#if test $http_debug; then
-#export curl_opts="-D -"
-#else
-export curl_opts=""
-#fi
+rm -rf /tmp/bitbucket-repo/flock
 
-find $local_dir -maxdepth 1 -mindepth 1 -type d -execdir perl -MFile::Basename \
--e 'my $p = basename(@ARGV[0]); my $user = $ENV{user}; my $password = $ENV{password}; 
-my $q = $ENV{q};
-print "let \"i++\"; ( echo -n \$i. \" \"; curl -s -k -H \"Content-Type: application/json\" -w \" %{url_effective} %{http_code} \" -d $q { \"is_private\" :  true  } $q",
-" https://api.bitbucket.org/2.0/repositories/$ENV{team}/$p -u $user:$password; echo )    \n"' {}  \; \
-| bash && echo bitbucket-repo-done
+mkdir -p /tmp/bitbucket-repo/flock
+
+
+svn list $svn_repo| grep '/' | perl  -n -e '
+
+  BEGIN {
+    $user = $ENV{user}; 
+    $team = $ENV{team}; 
+    $password = $ENV{password}; 
+    $q = $ENV{q};
+    $pack = 1; $i = 0;
+  }
+
+  ($p = $_)=~s{/}[]; chomp $p;
+
+  $i++;
+
+  $pack++ if $i%10 == 0;
+
+  print "( flock /tmp/bitbucket-repo/flock/lock.$pack \\
+  curl -s -k -H \"Content-Type: application/json\" \\
+  -w \" ... $pack/$i %{url_effective} %{http_code} \" -d $q { \"is_private\" :  true  } $q \\
+  https://api.bitbucket.org/2.0/repositories/$team/$p -u $user:$password ; echo; echo  ) &  \n\n";    
+
+
+' | bash && echo bitbucket-repo-done
+wait
