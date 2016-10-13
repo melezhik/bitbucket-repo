@@ -2,6 +2,7 @@ export svn_repo=$(config svn_repo)
 export team=$(config team)
 export user=$(config user)
 export password=$(config password)
+clear_cache=$(config clear_cache)
 
 echo svn_repo       : $svn_repo
 echo team           : $team
@@ -9,9 +10,19 @@ echo bitbucket user : $user
 
 export q="'";
 
-rm -rf /tmp/bitbucket-repo/flock
+rm -rf ~/bitbucket-repo/flock
 
-mkdir -p /tmp/bitbucket-repo/flock
+mkdir -p ~/tmp/bitbucket-repo/flock
+
+
+if test -z $clear_cache; then
+  echo cache at: ~/tmp/bitbucket-repo/cache
+  mkdir -p ~/tmp/bitbucket-repo/cache
+else
+  echo clear cache at: ~/tmp/bitbucket-repo/cache
+  rm -rf ~/tmp/bitbucket-repo/cache
+  mkdir -p ~/tmp/bitbucket-repo/cache
+fi
 
 
 svn list $svn_repo| grep '/' | perl  -n -e '
@@ -30,7 +41,7 @@ svn list $svn_repo| grep '/' | perl  -n -e '
 
   $pack++ if $i%10 == 0;
 
-  print "( flock /tmp/bitbucket-repo/flock/lock.$pack \\
+  print "( flock ~/tmp/bitbucket-repo/flock/lock.$pack \\
   curl -s -k -H \"Content-Type: application/json\" \\
   -w \" ... $pack/$i %{url_effective} %{http_code} \" -d $q { \"is_private\" :  true  } $q \\
   https://api.bitbucket.org/2.0/repositories/$team/$p -u $user:$password ; echo; echo  ) &  \n\n";    
