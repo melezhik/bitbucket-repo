@@ -28,8 +28,6 @@ svn list $svn_repo| grep '/' | perl  -n -e '
 
   ( \\
 
-  test -f ~/bitbucket-repo/flock/lock.$pack  || touch ~/bitbucket-repo/flock/lock.$pack 
-
   if test -f ~/bitbucket-repo/cache/$p; then
     echo repo $team/$p already exists
   elif curl -u $user:$password -s -f -k https://api.bitbucket.org/2.0/repositories/$team/$p -o /dev/null; then 
