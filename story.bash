@@ -2,7 +2,6 @@ export svn_repo=$(config svn_repo)
 export team=$(config team)
 export user=$(config user)
 export password=$(config password)
-export sleep=$(config sleep)
 
 echo svn_repo       : $svn_repo
 echo team           : $team
@@ -10,10 +9,7 @@ echo bitbucket user : $user
 
 export q="'";
 
-rm -rf ~/bitbucket-repo/flock
-
-mkdir -p ~/tmp/bitbucket-repo/flock
-
+mkdir -p ~/bitbucket-repo/cache
 
 svn list $svn_repo| grep '/' | perl  -n -e '
 
@@ -22,21 +18,28 @@ svn list $svn_repo| grep '/' | perl  -n -e '
     $team = $ENV{team}; 
     $password = $ENV{password}; 
     $q = $ENV{q};
-    $pack = 1; $i = 0;
-    $sleep = $ENV{sleep}; 
   }
 
   ($p = $_)=~s{/}[]; chomp $p;
 
   $i++;
 
-  $pack++ if $i%70 == 0;
+  print " 
 
-  print "( sleep $sleep && flock ~/tmp/bitbucket-repo/flock/lock.$pack \\
-  curl -s -k -H \"Content-Type: application/json\" \\
-  -w \" ... $pack/$i %{url_effective} %{http_code} \" -d $q { \"is_private\" :  true  } $q \\
-  https://api.bitbucket.org/2.0/repositories/$team/$p -u $user:$password ; echo; echo  ) &  \n\n";    
+  ( \\
 
+  test -f ~/bitbucket-repo/flock/lock.$pack  || touch ~/bitbucket-repo/flock/lock.$pack 
 
-' | bash && echo bitbucket-repo-done
+  if test -f ~/bitbucket-repo/cache/$p; then
+    echo repo $team/$p already exists
+  elif curl -u $user:$password -s -f -k https://api.bitbucket.org/2.0/repositories/$team/$p -o /dev/null; then 
+    echo repo $team/$p already exists
+    touch ~/bitbucket-repo/cache/$p
+  else
+    curl -s -k -H \"Content-Type: application/json\" \\
+    -w \" ... $pack/$i %{url_effective} %{http_code} \" -d $q { \"is_private\" :  true  } $q \\
+    https://api.bitbucket.org/2.0/repositories/$team/$p -u $user:$password 
+  fi \\
+  ) & \n "' | bash && echo bitbucket-repo-done
+
 wait
