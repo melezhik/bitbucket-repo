@@ -15,6 +15,7 @@ Plugin goes through the list of directories and asynchronously creates remote gi
 
     sparrow plg run bitbucket-repo 
     --param team=heroes \
+    --param project=ABC \
     --param svn_repo=http://svn_repository/goods \
     --param user=alexey \
     --param password=12345 \
@@ -29,6 +30,16 @@ This should be a bitbucket team  _representing_ a realm for git repositories.
 For example:
 
     --param team=my-cool-team
+
+Obligatory. No default value.
+
+## project
+
+This should be key of bitbucket project inside `$team`. Obligatory. No default value.
+
+For example:
+
+    --param project=PRJ1
 
 ## user
 
@@ -51,6 +62,14 @@ Plugin goes through the list of directories and asynchronously creates remote gi
 A list of directories is fetched by `svn list` command:
 
     $ svn list $svn_repo 
+
+Obligatory. No default value.
+
+## repo
+
+If repo is set - only perform operation for given repository ( directory listed at `$svn_repo` ). For example:
+
+    --param repo=foo 
 
 # Author
 
