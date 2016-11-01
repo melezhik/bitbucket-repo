@@ -71,6 +71,16 @@ If repo is set - only perform operation for given repository ( directory listed 
 
     --param repo=foo 
 
+## postfix
+
+An optional parameter, if set add `$postfix` string to the name of bitbucket repository being created.
+
+For example:
+
+    --param  postfix='-cookbook'
+
+This is useful to avoid conflicts when some bitbucket repositories already exist at team. 
+
 # Author
 
 Alexey Melezhik
