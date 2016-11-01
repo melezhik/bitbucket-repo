@@ -18,6 +18,7 @@ echo project        : $project
 echo repo           : $repo
 echo postfix        : $postfix
 echo chunk          : $chunk
+echo 'sleep'        : $sleep
 
 export q="'";
 
@@ -28,7 +29,7 @@ mkdir -p ~/bitbucket-repo/lock
 svn list $svn_repo| grep '/' | perl  -n -e '
 
   BEGIN {
-    $lid = 0;
+    $lid = 1;
     $user = $ENV{user}; 
     $repo = $ENV{repo}; 
     $project = $ENV{project}; 
@@ -48,14 +49,12 @@ svn list $svn_repo| grep '/' | perl  -n -e '
 
   $i++;
 
-  if ($i % $chunk == 0){
+  if (($i%$chunk) == 0){
     $lid++;
     print "touch ~/bitbucket-repo/lock/lock.$lid\n";
   }
 
   print " 
-
-  ( \\
 
   if test -f ~/bitbucket-repo/cache/$r$postfix; then
     echo repo $team/$r$postfix already exists
@@ -63,11 +62,11 @@ svn list $svn_repo| grep '/' | perl  -n -e '
     echo repo $team/$r$postfix already exists
     touch ~/bitbucket-repo/cache/$r$postfix
   else
-    sleep $sleep; flock ~/bitbucket-repo/lock/lock.$lid \\
+    sleep $sleep && ( flock ~/bitbucket-repo/lock/lock.$lid \\
     curl -s -k -H \"Content-Type: application/json\" \\
-    -w \" |chunk: $chunk| |nn: $i| %{url_effective} %{http_code} \" -d $q { \"is_private\" :  true , \"project\" : { \"key\" : \"$project\" }  } $q \\
-    https://api.bitbucket.org/2.0/repositories/$team/$r$postfix -u $user:$password ; echo
-  fi \\
-  ) & \n "' | bash && echo bitbucket-repo-done
+    -w \" |lock id: $lid| |nn: $i| %{url_effective} %{http_code} \" -d $q { \"is_private\" :  true , \"project\" : { \"key\" : \"$project\" }  } $q \\
+    https://api.bitbucket.org/2.0/repositories/$team/$r$postfix -u $user:$password &&  echo ) &
+  fi
+  \n "' | bash && echo bitbucket-repo-done
 
 wait
