@@ -1,10 +1,10 @@
 # SYNOPSIS
 
-Asynchronously Create ( multiple ) bitbucket git repositories.
+Create ( multiple ) bitbucket git repositories.
 
 # Description
 
-Plugin goes through the list of directories and asynchronously creates remote git repository for every one. 
+Plugin goes through the list of directories and creates remote git repository for every one. 
 
 # INSTALL
 
@@ -19,6 +19,7 @@ Plugin goes through the list of directories and asynchronously creates remote gi
     --param svn_repo=http://svn_repository/goods \
     --param user=alexey \
     --param password=12345 \
+    --param granto=guest-user
     
 
 # Parameters
@@ -80,6 +81,10 @@ For example:
     --param  postfix='-cookbook'
 
 This is useful to avoid conflicts when some bitbucket repositories already exist at team. 
+
+## granto
+
+This should be butbucket user which will be granted a read access to bitbucket repositories being created.
 
 # Author
 

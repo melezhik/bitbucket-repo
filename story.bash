@@ -8,8 +8,7 @@ export project=$(config project)
 
 export repo=$(config repo)
 export postfix=$(config postfix)
-export chunk=$(config chunk)
-export sleep=$(config sleep)
+export granto=$(config granto)
 
 echo svn_repo       : $svn_repo
 echo bitbucket user : $user
@@ -17,8 +16,7 @@ echo team           : $team
 echo project        : $project
 echo repo           : $repo
 echo postfix        : $postfix
-echo chunk          : $chunk
-echo 'sleep'        : $sleep
+echo grant to       : $granto
 
 export q="'";
 
@@ -36,8 +34,7 @@ svn list $svn_repo| grep '/' | perl  -n -e '
     $team = $ENV{team}; 
     $password = $ENV{password}; 
     $postfix = $ENV{postfix}; 
-    $chunk = $ENV{chunk}; 
-    $sleep = $ENV{sleep}; 
+    $granto = $ENV{granto}; 
     $q = $ENV{q};
   }
 
@@ -47,25 +44,24 @@ svn list $svn_repo| grep '/' | perl  -n -e '
     next unless $repo eq $r;
   }
 
-  $i++;
-
-  if (($i%$chunk) == 0){
-    $lid++;
-    print "touch ~/bitbucket-repo/lock/lock.$lid\n";
-  }
-
   print " 
 
   if test -f ~/bitbucket-repo/cache/$r$postfix; then
+
     echo repo $team/$r$postfix already exists
+
   elif curl -u $user:$password -s -f -k https://api.bitbucket.org/2.0/repositories/$team/$r$postfix -o /dev/null; then 
+
     echo repo $team/$r$postfix already exists
     touch ~/bitbucket-repo/cache/$r$postfix
+
   else
-    sleep $sleep && ( flock ~/bitbucket-repo/lock/lock.$lid \\
-    curl -s -k -H \"Content-Type: application/json\" \\
-    -w \" |lock id: $lid| |nn: $i| %{url_effective} %{http_code} \" -d $q { \"is_private\" :  true , \"project\" : { \"key\" : \"$project\" }  } $q \\
-    https://api.bitbucket.org/2.0/repositories/$team/$r$postfix -u $user:$password &&  echo ) &
+
+    curl -u $user:$password -f -s -k -H \"Content-Type: application/json\"  \\
+    -d $q { \"is_private\" :  true , \"project\" : { \"key\" : \"$project\" }  } $q \\
+    https://api.bitbucket.org/2.0/repositories/$team/$r$postfix  &&  \\
+    curl -u $user:$password -f -s -k -X PUT https://api.bitbucket.org/1.0/privileges/$team/$r$postfix/$granto --data read
+
   fi
   \n "' | bash && echo bitbucket-repo-done
 
